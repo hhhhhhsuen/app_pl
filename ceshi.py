@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import io
 import requests
+import openpyxl
 
 # 设置页面配置
 st.set_page_config(page_title="app评论查询工具v1.0-ShuaiSuen", page_icon=":mag:", layout="wide")
