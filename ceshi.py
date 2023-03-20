@@ -4,8 +4,6 @@ import pandas as pd
 import os
 import io
 import requests
-from qcloud_cos import CosConfig
-from qcloud_cos import CosS3Client
 
 # 设置页面配置
 st.set_page_config(page_title="app评论查询工具v1.0-ShuaiSuen", page_icon=":mag:", layout="wide")
@@ -16,24 +14,16 @@ st.title('app评论查询工具v1.0-ShuaiSuen')
 # 获取关键词输入
 keyword = st.text_input('请输入要检索的关键词：')
 
-# 配置腾讯云COS连接参数
-secret_id = 'AKIDBMTRErJi284tXijeO4WO8g172mKfAWgg'
-secret_key = 'rZ6PTvITSEmwrfGeplTxDG4dz95oSwJS'
-region = 'ap-beijing'
-bucket = 'appdate01-1259110268'
-cos_config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
-cos_client = CosS3Client(cos_config)
 
-def load_data(cos_path):
-    # 从腾讯云COS下载文件到内存
-    file_data = cos_client.get_object(Bucket=bucket, Key=cos_path)["Body"].get_raw_stream().read()
+def load_data(jianguo_url):
+    # 从坚果云下载文件到内存
+    file_data = requests.get(jianguo_url).content
     return pd.read_excel(io.BytesIO(file_data), engine='openpyxl')
 
-# 使用从腾讯云COS获取的文件路径调用 load_data 函数
-cos_path = 'str_pl/test.xlsx'
-df = load_data(cos_path)
+# 使用从坚果云获取的共享链接调用 load_data 函数
+jianguo_url = 'https://www.jianguoyun.com/p/DdLFwWsQiK2-CxiV1_0EIAA'
+df = load_data(jianguo_url)
 
-# 省略其他部分，例如提供下载链接的函数、下载原始数据、搜索按钮等
 
 # 提供下载链接的函数
 def get_download_link(df, filename, file_format):
