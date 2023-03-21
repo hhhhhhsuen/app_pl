@@ -26,7 +26,7 @@ def load_data_from_nutstore(nutstore_path):
     return pd.read_excel(io.BytesIO(file_content), engine='openpyxl')
 
 # 使用从坚果云获取的文件路径调用 load_data_from_nutstore 函数
-nutstore_path = 'your_nutstore_path/test.xlsx'
+nutstore_path = 'date_01/test.xlsx'
 df = load_data_from_nutstore(nutstore_path)
 
 # 提供下载链接的函数
