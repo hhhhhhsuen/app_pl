@@ -1,5 +1,6 @@
 streamlit
 pandas
-requests
-qcloud_cos
 openpyxl
+requests
+base64
+webdavclient3
