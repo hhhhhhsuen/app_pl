@@ -1,11 +1,9 @@
-import base64
 import streamlit as st
 import pandas as pd
-import os
 import io
-import requests
-from qcloud_cos import CosConfig
-from qcloud_cos import CosS3Client
+import requess
+import base64
+from webdav3.client import Client
 
 # 设置页面配置
 st.set_page_config(page_title="app评论查询工具v1.0-ShuaiSuen", page_icon=":mag:", layout="wide")
@@ -16,24 +14,20 @@ st.title('app评论查询工具v1.0-ShuaiSuen')
 # 获取关键词输入
 keyword = st.text_input('请输入要检索的关键词：')
 
-# 配置腾讯云COS连接参数
-secret_id = 'AKIDBMTRErJi284tXijeO4WO8g172mKfAWgg'
-secret_key = 'rZ6PTvITSEmwrfGeplTxDG4dz95oSwJS'
-region = 'ap-beijing'
-bucket = 'appdate01-1259110268'
-cos_config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
-cos_client = CosS3Client(cos_config)
+# 从坚果云读取文件
+def load_data_from_nutstore(nutstore_path):
+    options = {
+        'webdav_hostname': 'https://dav.jianguoyun.com/dav/',
+        'webdav_login': '844419955@qq.com',
+        'webdav_password': 'ss1203722002'
+    }
+    client = Client(options)
+    file_content = client.read(nutstore_path)
+    return pd.read_excel(io.BytesIO(file_content), engine='openpyxl')
 
-def load_data(cos_path):
-    # 从腾讯云COS下载文件到内存
-    file_data = cos_client.get_object(Bucket=bucket, Key=cos_path)["Body"].get_raw_stream().read()
-    return pd.read_excel(io.BytesIO(file_data), engine='openpyxl')
-
-# 使用从腾讯云COS获取的文件路径调用 load_data 函数
-cos_path = 'str_pl/test.xlsx'
-df = load_data(cos_path)
-
-# 省略其他部分，例如提供下载链接的函数、下载原始数据、搜索按钮等
+# 使用从坚果云获取的文件路径调用 load_data_from_nutstore 函数
+nutstore_path = 'your_nutstore_path/test.xlsx'
+df = load_data_from_nutstore(nutstore_path)
 
 # 提供下载链接的函数
 def get_download_link(df, filename, file_format):
@@ -50,7 +44,6 @@ def get_download_link(df, filename, file_format):
 
     href = f'<a href="data:file/{file_format};base64,{b64}" download="{filename}">点击下载{filename}</a>'
     return href
-
 
 # 下载原始数据
 st.markdown(get_download_link(df, "原始数据.xlsx", "xlsx"), unsafe_allow_html=True)
@@ -75,4 +68,3 @@ if st.button('搜索'):
 
         # 下载搜索结果
         st.markdown(get_download_link(result, "搜索结果.csv", "csv"), unsafe_allow_html=True)
-
